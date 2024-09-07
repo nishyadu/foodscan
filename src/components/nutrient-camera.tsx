@@ -33,10 +33,20 @@ export function NutrientCamera() {
   useEffect(() => {
     async function setupCamera() {
       try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        console.log("Attempting to access camera...")
+        const stream = await navigator.mediaDevices.getUserMedia({ 
+          video: { facingMode: 'environment' } 
+        }).catch(() => navigator.mediaDevices.getUserMedia({ video: true }))
+        
+        console.log("Camera access granted")
         if (videoRef.current) {
           videoRef.current.srcObject = stream
           setCameraActive(true)
+          console.log("Video source set")
+          videoRef.current.onloadedmetadata = () => {
+            videoRef.current?.play()
+            console.log("Video playback started")
+          }
         }
       } catch (err) {
         console.error("Error accessing camera:", err)
@@ -86,32 +96,34 @@ export function NutrientCamera() {
 
   return (
     <div className={`relative w-full h-screen bg-gray-900 overflow-hidden ${currentFont}`}>
-      {/* Real Camera Feed */}
+      {/* Camera feed or placeholder */}
       {cameraActive ? (
         <video 
           ref={videoRef} 
           autoPlay 
           playsInline 
           muted 
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover z-10"
+          onLoadedMetadata={() => videoRef.current?.play()}
+          style={{ backgroundColor: 'black' }}
         />
       ) : (
-        <div className="w-full h-full relative bg-black flex items-center justify-center">
+        <div className="absolute inset-0 w-full h-full bg-black flex items-center justify-center z-10">
           <Camera className="w-16 h-16 text-gray-600" />
         </div>
       )}
       
-      <div className="absolute top-4 left-4 bg-black bg-opacity-50 p-2 rounded">
+      {/* Other UI elements */}
+      <div className="absolute top-4 left-4 bg-black bg-opacity-50 p-2 rounded z-20">
         <p className="text-white text-sm">Live Camera</p>
       </div>
       
-      {/* Foodscan Logo */}
-      <div className="absolute top-4 right-4 bg-black bg-opacity-50 p-2 rounded">
+      <div className="absolute top-4 right-4 bg-black bg-opacity-50 p-2 rounded z-20">
         <p className="text-white text-lg font-bold">Foodscan</p>
       </div>
 
-      {/* Glassy Overlay (bottom 25% of screen) */}
-      <div className="absolute bottom-0 left-0 right-0 h-[25vh] bg-white bg-opacity-10 backdrop-filter backdrop-blur-md flex flex-col justify-center p-6 rounded-t-3xl shadow-lg">
+      {/* Glassy Overlay */}
+      <div className="absolute bottom-0 left-0 right-0 h-[25vh] bg-white bg-opacity-10 backdrop-filter backdrop-blur-md flex flex-col justify-center p-6 rounded-t-3xl shadow-lg z-20">
         {analyzing ? (
           <p className="text-white text-lg text-center">Analyzing food...</p>
         ) : nutrientInfo ? (

@@ -46,12 +46,37 @@ export function NutrientCamera() {
     setupCamera()
 
     return () => {
-      // Clean up the camera stream when component unmounts
-      if (videoRef.current && videoRef.current.srcObject) {
-        const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
+      const video = videoRef.current
+      if (video && video.srcObject) {
+        const tracks = (video.srcObject as MediaStream).getTracks()
         tracks.forEach(track => track.stop())
       }
     }
+  }, [])
+
+  useEffect(() => {
+    const analyzeInterval = setInterval(() => {
+      // Simulate AI analysis
+      const foods = ['Apple', 'Banana', 'Orange', 'Broccoli', 'Chicken Breast']
+      const randomFood = foods[Math.floor(Math.random() * foods.length)]
+      
+      setAnalyzing(false)
+      setNutrientInfo({
+        name: randomFood,
+        calories: Math.floor(Math.random() * 200) + 50,
+        carbs: `${Math.floor(Math.random() * 30) + 5}g`,
+        fiber: `${Math.floor(Math.random() * 5) + 1}g`,
+        vitaminC: `${Math.floor(Math.random() * 50) + 10}% DV`
+      })
+
+      // Simulate occasional "searching" state
+      if (Math.random() < 0.2) {
+        setAnalyzing(true)
+        setNutrientInfo(null)
+      }
+    }, 3000) // Update every 3 seconds
+
+    return () => clearInterval(analyzeInterval)
   }, [])
 
   const shuffleFont = () => {

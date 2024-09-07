@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Camera, Shuffle } from 'lucide-react'
 import { Button } from "@/components/ui/button"
 
@@ -27,30 +27,31 @@ export function NutrientCamera() {
   const [analyzing, setAnalyzing] = useState(true)
   const [nutrientInfo, setNutrientInfo] = useState<NutrientInfo | null>(null)
   const [currentFont, setCurrentFont] = useState(fonts[0])
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const [cameraActive, setCameraActive] = useState(false)
 
   useEffect(() => {
-    const analyzeInterval = setInterval(() => {
-      // Simulate AI analysis
-      const foods = ['Apple', 'Banana', 'Orange', 'Broccoli', 'Chicken Breast']
-      const randomFood = foods[Math.floor(Math.random() * foods.length)]
-      
-      setAnalyzing(false)
-      setNutrientInfo({
-        name: randomFood,
-        calories: Math.floor(Math.random() * 200) + 50,
-        carbs: `${Math.floor(Math.random() * 30) + 5}g`,
-        fiber: `${Math.floor(Math.random() * 5) + 1}g`,
-        vitaminC: `${Math.floor(Math.random() * 50) + 10}% DV`
-      })
-
-      // Simulate occasional "searching" state
-      if (Math.random() < 0.2) {
-        setAnalyzing(true)
-        setNutrientInfo(null)
+    async function setupCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream
+          setCameraActive(true)
+        }
+      } catch (err) {
+        console.error("Error accessing camera:", err)
       }
-    }, 3000) // Update every 3 seconds
+    }
 
-    return () => clearInterval(analyzeInterval)
+    setupCamera()
+
+    return () => {
+      // Clean up the camera stream when component unmounts
+      if (videoRef.current && videoRef.current.srcObject) {
+        const tracks = (videoRef.current.srcObject as MediaStream).getTracks()
+        tracks.forEach(track => track.stop())
+      }
+    }
   }, [])
 
   const shuffleFont = () => {
@@ -60,19 +61,28 @@ export function NutrientCamera() {
 
   return (
     <div className={`relative w-full h-screen bg-gray-900 overflow-hidden ${currentFont}`}>
-      {/* Simulated Camera Feed (full screen) */}
-      <div className="w-full h-full relative bg-black">
-        <div className="absolute inset-0 flex items-center justify-center">
+      {/* Real Camera Feed */}
+      {cameraActive ? (
+        <video 
+          ref={videoRef} 
+          autoPlay 
+          playsInline 
+          muted 
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <div className="w-full h-full relative bg-black flex items-center justify-center">
           <Camera className="w-16 h-16 text-gray-600" />
         </div>
-        <div className="absolute top-4 left-4 bg-black bg-opacity-50 p-2 rounded">
-          <p className="text-white text-sm">Live Camera</p>
-        </div>
-        
-        {/* Foodscan Logo */}
-        <div className="absolute top-4 right-4 bg-black bg-opacity-50 p-2 rounded">
-          <p className="text-white text-lg font-bold">Foodscan</p>
-        </div>
+      )}
+      
+      <div className="absolute top-4 left-4 bg-black bg-opacity-50 p-2 rounded">
+        <p className="text-white text-sm">Live Camera</p>
+      </div>
+      
+      {/* Foodscan Logo */}
+      <div className="absolute top-4 right-4 bg-black bg-opacity-50 p-2 rounded">
+        <p className="text-white text-lg font-bold">Foodscan</p>
       </div>
 
       {/* Glassy Overlay (bottom 25% of screen) */}

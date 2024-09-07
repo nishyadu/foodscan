@@ -52,9 +52,15 @@ export function FoodScanner() {
           throw new Error('No cameras available')
         }
 
-        const stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { deviceId: videoDevices[currentCameraIndex]?.deviceId }
-        })
+        // Prefer back camera on mobile devices
+        const constraints = {
+          video: {
+            facingMode: { ideal: 'environment' },
+            deviceId: videoDevices[currentCameraIndex]?.deviceId
+          }
+        }
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints)
         
         if (videoRef.current) {
           videoRef.current.srcObject = stream

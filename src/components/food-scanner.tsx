@@ -125,18 +125,26 @@ export function FoodScanner() {
 
   return (
     <div className={`relative w-full h-screen bg-gray-900 overflow-hidden ${currentFont}`}>
-      <video 
-        ref={videoRef} 
-        autoPlay 
-        playsInline 
-        muted 
-        className={`absolute inset-0 w-full h-full object-cover z-10 ${cameraActive ? '' : 'hidden'}`}
-      />
-      {!cameraActive && (
-        <div className="absolute inset-0 w-full h-full bg-black flex items-center justify-center z-10">
-          <Camera className="w-16 h-16 text-gray-600" />
-        </div>
-      )}
+      {/* Camera frame */}
+      <div className="absolute inset-x-4 top-20 bottom-[50vh] rounded-3xl overflow-hidden border-4 border-gray-300 shadow-lg z-10">
+        <video 
+          ref={videoRef} 
+          autoPlay 
+          playsInline 
+          muted 
+          className={`absolute inset-0 w-full h-full object-cover ${cameraActive ? '' : 'hidden'}`}
+        />
+        {!cameraActive && (
+          <div className="absolute inset-0 w-full h-full bg-black flex items-center justify-center">
+            <Camera className="w-16 h-16 text-gray-600" />
+          </div>
+        )}
+        {/* Camera frame corners */}
+        <div className="absolute top-0 left-0 w-8 h-8 border-t-4 border-l-4 border-white"></div>
+        <div className="absolute top-0 right-0 w-8 h-8 border-t-4 border-r-4 border-white"></div>
+        <div className="absolute bottom-0 left-0 w-8 h-8 border-b-4 border-l-4 border-white"></div>
+        <div className="absolute bottom-0 right-0 w-8 h-8 border-b-4 border-r-4 border-white"></div>
+      </div>
       
       <div className="absolute top-4 left-4 bg-black bg-opacity-50 p-2 rounded z-20">
         <p className="text-white text-sm">Live Camera</p>
@@ -146,22 +154,34 @@ export function FoodScanner() {
         <p className="text-white text-lg font-bold">FoodScan Pro</p>
       </div>
 
-      {/* Glassy Overlay */}
-      <div className="absolute bottom-0 left-0 right-0 h-[25vh] bg-white bg-opacity-10 backdrop-filter backdrop-blur-md flex flex-col justify-center p-6 rounded-t-3xl shadow-lg z-20">
+      {/* Glassy Overlay - now 50% of screen height */}
+      <div className="absolute bottom-0 left-0 right-0 h-[50vh] bg-white bg-opacity-10 backdrop-filter backdrop-blur-md flex flex-col justify-center p-6 rounded-t-3xl shadow-lg z-20">
         {analyzing ? (
-          <p className="text-white text-lg text-center">Analyzing food...</p>
+          <p className="text-white text-2xl text-center mb-4">Analyzing food...</p>
         ) : foodInfo ? (
-          <div className="space-y-2">
-            <p className="text-white text-2xl font-bold">{foodInfo.name}</p>
-            <div className="grid grid-cols-2 gap-2">
-              <p className="text-white">Calories: <span className="font-semibold">{foodInfo.calories}</span></p>
-              <p className="text-white">Protein: <span className="font-semibold">{foodInfo.protein}</span></p>
-              <p className="text-white">Carbs: <span className="font-semibold">{foodInfo.carbs}</span></p>
-              <p className="text-white">Fat: <span className="font-semibold">{foodInfo.fat}</span></p>
+          <div className="space-y-4">
+            <p className="text-white text-3xl font-bold text-center">{foodInfo.name}</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
+                <p className="text-white text-lg">Calories</p>
+                <p className="text-white text-2xl font-semibold">{foodInfo.calories}</p>
+              </div>
+              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
+                <p className="text-white text-lg">Protein</p>
+                <p className="text-white text-2xl font-semibold">{foodInfo.protein}</p>
+              </div>
+              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
+                <p className="text-white text-lg">Carbs</p>
+                <p className="text-white text-2xl font-semibold">{foodInfo.carbs}</p>
+              </div>
+              <div className="bg-white bg-opacity-20 p-4 rounded-lg">
+                <p className="text-white text-lg">Fat</p>
+                <p className="text-white text-2xl font-semibold">{foodInfo.fat}</p>
+              </div>
             </div>
           </div>
         ) : (
-          <p className="text-white text-lg text-center">Point camera at food to analyze</p>
+          <p className="text-white text-2xl text-center">Point camera at food to analyze</p>
         )}
         
         {/* Font Shuffle Button */}

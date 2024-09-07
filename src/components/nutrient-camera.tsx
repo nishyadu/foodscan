@@ -15,9 +15,17 @@ const fonts = [
   'font-audiowide',
 ]
 
+interface NutrientInfo {
+  name: string;
+  calories: number;
+  carbs: string;
+  fiber: string;
+  vitaminC: string;
+}
+
 export function NutrientCamera() {
   const [analyzing, setAnalyzing] = useState(true)
-  const [nutrientInfo, setNutrientInfo] = useState(null)
+  const [nutrientInfo, setNutrientInfo] = useState<NutrientInfo | null>(null)
   const [currentFont, setCurrentFont] = useState(fonts[0])
 
   useEffect(() => {
